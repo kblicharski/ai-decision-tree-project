@@ -8,6 +8,5 @@ opam install merlin ocp-indent dune utop csv
 
 Then, in order to recompile and execute the code, run the following:
 ```
-dune exec ./bin/main.exe
-dune clean
+dune clean && dune exec ./bin/main.exe
 ```
