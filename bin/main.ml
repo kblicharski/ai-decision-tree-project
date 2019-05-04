@@ -1,3 +1,3 @@
 open Lib
 
-let () = Hello_world.asdf
+let () = FileIO.read_file "data/house-votes-84.data"
