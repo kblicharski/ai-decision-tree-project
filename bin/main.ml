@@ -3,6 +3,7 @@ open Lib
 let char1 = [
   "party"; 
   "handicapped-infants"; 
+  "water-project-cost-sharing";
   "adoption-of-the-budget-resolution"; 
   "physician-fee-freeze"; 
   "el-salvador-aid"; 
