@@ -21,6 +21,7 @@ let char1 = [
 let decisions1 = ["y"; "n"; "?"]
 let positive1 = "democrat"
 
+
 (* Work in progress, no idea what I'm doing here *)
 module DecisionTree =
   struct
@@ -33,10 +34,7 @@ module DecisionTree =
     }
   end ;;
 
-(* 
-  Helper function to visualize how the example set
-  is divided for a given characteristic  
-*)
+
 let print_partitions partitions labels =
   let rec print_helper p n =
     match p with
@@ -49,22 +47,33 @@ let print_partitions partitions labels =
   print_helper partitions 0
 
 
-let print_all_remainders examples decisions characteristics pos =
-  let rec r_helper chars =
+let get_all_remainders examples decisions characteristics pos =
+  let rec r_helper chars o =
     match chars with
-    | [] -> ()
+    | [] -> o
     | h :: r -> 
       let i = Helpers.find h characteristics in
       let p = Helpers.partition examples decisions i in
       let rem = Helpers.remainder examples p pos in
-      Printf.printf "%f -- '%s'\n" rem (List.nth characteristics i) ;
-      r_helper r
+      r_helper r ((rem, List.nth characteristics i) :: o)
   in
-  r_helper (List.tl characteristics)
+  r_helper (List.tl characteristics) []
 
+
+let rec print_in_order rems =
+  match rems with
+  | [] -> ()
+  | (rem, c) :: r -> 
+    Printf.printf "%f -- %s\n" rem c ;
+    print_in_order r
+
+let custom_compare (v1, _) (v2, _) =
+  if v1 = v2 then 0 else
+    if v1 > v2 then 1 else -1
 
 let () = 
-    let data_file = "data/votes-small.data" in
+    (* let data_file = "data/votes-small.data" in *)
+    let data_file = "data/house-votes-84.data" in
     let examples = Fileio.load_data data_file in
     (* let branch = 1 in *)
     let positive = positive1 in
@@ -74,7 +83,8 @@ let () =
     (* Printf.printf "Partitions for '%s' (Index %d)\n" (List.nth chars branch) branch ; *)
     (* print_partitions p decisions ; *)
     (* Printf.printf "Remainder for '%s': %f\n" (List.nth chars branch) (Helpers.remainder examples p positive) ; *)
-    print_all_remainders examples decisions chars positive ;
+    let rems = get_all_remainders examples decisions chars positive in
+    print_in_order (List.sort custom_compare rems) ;
     ()
 
     (* 
