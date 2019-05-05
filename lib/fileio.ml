@@ -9,3 +9,6 @@ let read_file (file_name: string) =
     done
   with End_of_file ->
     close_in in_channel *)
+
+let load_data (file_name: string): Csv.t = 
+  Csv.load file_name
