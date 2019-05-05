@@ -1,3 +1,11 @@
+let find x l =
+  let rec find_helper x l n =
+    match l with
+    | [] -> failwith "Item not found in list"
+    | h :: r -> if h = x then n else find_helper x r (n+1)
+  in
+  find_helper x l 0
+
 (* 
   Returns all unique values in a list. 
 
@@ -62,3 +70,33 @@ let partition e u c =
       partition_uniq r (matched :: o)
   in
   List.rev (partition_uniq u [])
+
+(* Simple function to calculate log base 2 *)
+let log2 v = Pervasives.log10(v) /. Pervasives.log10(2.)
+
+let entropy p n = 
+  let z = p +. n in
+  let a = if p > 0. then -.(p /. z) *. (log2 (p /. z)) else 0. in
+  let b = if n > 0. then -.(n /. z) *. (log2 (n /. z)) else 0. in
+  a +. b 
+
+let remainder examples partitioned pos =
+  let find_p_n ex = 
+    let (p_, n_) = List.partition (fun e -> (List.nth e 0) = pos) ex in
+    (float_of_int (List.length p_), float_of_int (List.length n_))
+  in
+  let (p, n) = find_p_n examples in
+  (* let () = Printf.printf "p:%f n:%f\n" p n in *)
+  let pis_nis = List.map find_p_n partitioned in
+  let calc_remainder (pi, ni) =
+    let z = pi +. ni in
+    (* let () = Printf.printf "pi:%f ni:%f\n" pi ni in *)
+    let rem = (z /. (p +. n)) *. (entropy (pi /. z) (ni /. z)) in
+    (* let () = Printf.printf "Entropy:%f\n" (entropy (pi /. z) (ni /. z)) in *)
+    (* let () = Printf.printf "Remainder:%f\n" rem in *)
+    rem
+  in
+  let remainders = List.map calc_remainder pis_nis in
+  (* let () = List.iter (Printf.printf "%f ") remainders in *)
+  let sum l = List.fold_right (+.) l 0. in
+  sum remainders
