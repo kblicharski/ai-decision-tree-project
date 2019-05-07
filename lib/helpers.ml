@@ -6,6 +6,16 @@ let find x l =
   in
   find_helper x l 0
 
+(*
+  
+*)
+let uniform_partition ~partition =
+  let p = 
+    partition |> 
+    List.map (fun e -> List.length e) |> 
+    List.filter (fun l -> l <> 0) in
+  if List.length p = 1 then Some p else None
+
 (* 
   Returns all unique values in a list. 
 

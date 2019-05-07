@@ -29,19 +29,33 @@ type model = {
   decisions: string list; 
 }
 
+module SNode = struct
+  type t = 
+    {
+      model: model;
+      depth: int;
+      characteristic: string;
+      decision: string;
+      remainder: float;
+      examples: string list list;
+    }
+end
+
+module LNode = struct
+  type t = 
+    {
+      model: model;
+      depth: int;
+      classification: string;
+      decision: string;
+      examples: string list list;
+    }
+end
 
 type dtree = 
-  | Leaf of node
-  | Node of node * dtree list
-and node = {
-  model: model;
-  depth: int;
-  parent: node option;
-  characteristic: string option;
-  decision: string;
-  remainder: float;
-  examples: string list list;
-}
+  | Leaf of LNode.t
+  | Node of SNode.t * dtree list
+
 
 
 let print_partitions partitions labels =
@@ -86,25 +100,26 @@ let () =
     (* let data_file = "data/votes-small.data" in *)
     let data_file = "data/house-votes-84.data" in
     let ex1 = Fileio.load_data data_file in
-    (* let branch = 1 in *)
     let m1 = { 
       positive = positive1; 
       characteristics = char1; 
       decisions = decisions1
     } in
-    (* let p = Helpers.partition examples decisions branch in *)
-    (* Printf.printf "Partitions for '%s' (Index %d)\n" (List.nth chars branch) branch ; *)
-    (* print_partitions p decisions ; *)
-    (* Printf.printf "Remainder for '%s': %f\n" (List.nth chars branch) (Helpers.remainder examples p positive) ; *)
     let rems = get_all_remainders ~model:m1 ~examples:ex1 in
     print_in_order (List.sort custom_compare rems) ;
     ()
 
     (* 
       1. Select a characteristic to branch on. 
+         (a) Compute all remainders using `get_all_remainders`
+         (b) Select the characteristic with the minimum entropy value
       2. Split examples into sets according to their response.
-      3. If all examples in that set are homogenous, add a leaf node
-         with that classification.
+         (a) Call `partition` with the current set of examples, the set
+             of available decisions (branching factor), and the index in
+             the characteristics array of the characteristic being
+             used to split.
+      3. Create a new Node object to store the returned information.
+         (a) 
          Otherwise, add new decision nodes containing the set of
-         examples belonging to that node, and continue from step 2.
+         examples belonging to that node, and repeat.
     *)
