@@ -23,23 +23,24 @@ let decisions1 = ["y"; "n"; "?"]
 let positive1 = "democrat"
 
 
-(* Work in progress, no idea what I'm doing here *)
-module DecisionTree =
-  struct
-    type classification = string
-    type node = {
-      depth: int;
-      parent: node option;
-      examples: Csv.t;
-      characteristic: string;
-    }
-  end ;;
-
-
 type model = {
   positive: string;
   characteristics: string list;
   decisions: string list; 
+}
+
+
+type dtree = 
+  | Leaf of node
+  | Node of node * dtree list
+and node = {
+  model: model;
+  depth: int;
+  parent: node option;
+  characteristic: string option;
+  decision: string;
+  remainder: float;
+  examples: string list list;
 }
 
 
