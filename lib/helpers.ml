@@ -6,8 +6,8 @@ let find x l =
   in
   find_helper x l 0
 
-(* 
-  Returns all unique values in a list. 
+(*
+  Returns all unique values in a list.
 
   Inputs:
     (l: string list)
@@ -26,7 +26,7 @@ let uniq l =
   let rec uniq_h l o =
     match l with
     | [] -> o
-    | h :: r -> 
+    | h :: r ->
       if List.mem h o then
         uniq_h r o
       else
@@ -34,7 +34,7 @@ let uniq l =
   in
   List.rev (uniq_h l [])
 
-(* 
+(*
   Partitions a set of examples into n example sets,
   where n is the number of possible decisions.
 
@@ -43,7 +43,7 @@ let uniq l =
       The set of examples to partition.
     (u: string list)
       The set of decisions. Note that the order of the decisions in u
-       will be the order of the matching in the output. For example, 
+       will be the order of the matching in the output. For example,
       if u = ["y", "n", "?"] then the first element in the output will
        be the set of examples that matched "y".
     (c: int)
@@ -55,17 +55,17 @@ let uniq l =
       The partitioned sets of examples.
 
   Examples:
-    # partition [["y"; "n"]; ["y"; "?"]] ["y"; "n"; "?"] 0 
+    # partition [["y"; "n"]; ["y"; "?"]] ["y"; "n"; "?"] 0
     - : string list list list = [[["y"; "n"]; ["y"; "?"]]; []; []]
 
-    # partition [["y"; "n"]; ["y"; "?"]] ["y"; "n"; "?"] 1 
+    # partition [["y"; "n"]; ["y"; "?"]] ["y"; "n"; "?"] 1
     - : string list list list = [[]; [["y"; "n"]]; [["y"; "?"]]]
 *)
 let partition e u c =
   let rec partition_uniq l o =
     match l with
     | [] -> o
-    | h :: r -> 
+    | h :: r ->
       let matched = List.filter (fun x -> (List.nth x c) = h) e in
       partition_uniq r (matched :: o)
   in
@@ -74,14 +74,14 @@ let partition e u c =
 (* Simple function to calculate log base 2 *)
 let log2 v = Pervasives.log10(v) /. Pervasives.log10(2.)
 
-let entropy p n = 
+let entropy p n =
   let z = p +. n in
   let a = if p > 0. then -.(p /. z) *. (log2 (p /. z)) else 0. in
   let b = if n > 0. then -.(n /. z) *. (log2 (n /. z)) else 0. in
-  a +. b 
+  a +. b
 
 let remainder examples partitioned pos =
-  let find_p_n ex = 
+  let find_p_n ex =
     let (p_, n_) = List.partition (fun e -> (List.nth e 0) = pos) ex in
     (float_of_int (List.length p_), float_of_int (List.length n_))
   in
@@ -100,3 +100,24 @@ let remainder examples partitioned pos =
   (* let () = List.iter (Printf.printf "%f ") remainders in *)
   let sum l = List.fold_right (+.) l 0. in
   sum remainders
+
+
+let get_all_remainders examples decisions characteristics pos =
+  let rec r_helper chars o =
+    match chars with
+    | [] -> o
+    | h :: r ->
+      let i = Helpers.find h characteristics in
+      let p = Helpers.partition examples decisions i in
+      let rem = Helpers.remainder examples p pos in
+      r_helper r ((rem, List.nth characteristics i) :: o)
+  in
+  r_helper (List.tl characteristics) []
+
+let splitting_attr examples decisions characteristics pos =
+  let custom_compare (v1, _) (v2, _) =
+    if v1 = v2 then 0 else
+      if v1 > v2 then 1 else -1
+  in
+  let rems = get_all_remainders examples decisions characteristics pos in
+  List.hd (List.sort custom_compare rems)
