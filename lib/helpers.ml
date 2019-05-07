@@ -1,3 +1,5 @@
+open Model ;;
+
 let find x l =
   let rec find_helper x l n =
     match l with
@@ -102,22 +104,22 @@ let remainder examples partitioned pos =
   sum remainders
 
 
-let get_all_remainders examples decisions characteristics pos =
+let get_all_remainders ~model ~examples =
   let rec r_helper chars o =
     match chars with
     | [] -> o
     | h :: r ->
-      let i = Helpers.find h characteristics in
-      let p = Helpers.partition examples decisions i in
-      let rem = Helpers.remainder examples p pos in
-      r_helper r ((rem, List.nth characteristics i) :: o)
+      let i = find h model.characteristics in
+      let p = partition examples model.decisions i in
+      let rem = remainder examples p model.positive in
+      r_helper r ((rem, List.nth model.characteristics i) :: o)
   in
-  r_helper (List.tl characteristics) []
+  r_helper (List.tl model.characteristics) []
 
-let splitting_attr examples decisions characteristics pos =
+let splitting_attr ~model ~examples =
   let custom_compare (v1, _) (v2, _) =
     if v1 = v2 then 0 else
       if v1 > v2 then 1 else -1
   in
-  let rems = get_all_remainders examples decisions characteristics pos in
+  let rems = get_all_remainders ~examples: examples ~model: model in
   List.hd (List.sort custom_compare rems)
