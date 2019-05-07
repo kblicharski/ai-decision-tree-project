@@ -36,6 +36,13 @@ module DecisionTree =
   end ;;
 
 
+type model = {
+  positive: string;
+  characteristics: string list;
+  decisions: string list; 
+}
+
+
 let print_partitions partitions labels =
   let rec print_helper p n =
     match p with
@@ -48,17 +55,17 @@ let print_partitions partitions labels =
   print_helper partitions 0
 
 
-let get_all_remainders examples decisions characteristics pos =
+let get_all_remainders ~model ~examples =
   let rec r_helper chars o =
     match chars with
     | [] -> o
     | h :: r -> 
-      let i = Helpers.find h characteristics in
-      let p = Helpers.partition examples decisions i in
-      let rem = Helpers.remainder examples p pos in
-      r_helper r ((rem, List.nth characteristics i) :: o)
+      let i = Helpers.find h model.characteristics in
+      let p = Helpers.partition examples model.decisions i in
+      let rem = Helpers.remainder examples p model.positive in
+      r_helper r ((rem, List.nth model.characteristics i) :: o)
   in
-  r_helper (List.tl characteristics) []
+  r_helper (List.tl model.characteristics) []
 
 
 let rec print_in_order rems =
@@ -68,23 +75,27 @@ let rec print_in_order rems =
     Printf.printf "%f -- %s\n" rem c ;
     print_in_order r
 
+
 let custom_compare (v1, _) (v2, _) =
   if v1 = v2 then 0 else
     if v1 > v2 then 1 else -1
 
+  
 let () = 
     (* let data_file = "data/votes-small.data" in *)
     let data_file = "data/house-votes-84.data" in
-    let examples = Fileio.load_data data_file in
+    let ex1 = Fileio.load_data data_file in
     (* let branch = 1 in *)
-    let positive = positive1 in
-    let chars = char1 in
-    let decisions = decisions1 in
+    let m1 = { 
+      positive = positive1; 
+      characteristics = char1; 
+      decisions = decisions1
+    } in
     (* let p = Helpers.partition examples decisions branch in *)
     (* Printf.printf "Partitions for '%s' (Index %d)\n" (List.nth chars branch) branch ; *)
     (* print_partitions p decisions ; *)
     (* Printf.printf "Remainder for '%s': %f\n" (List.nth chars branch) (Helpers.remainder examples p positive) ; *)
-    let rems = get_all_remainders examples decisions chars positive in
+    let rems = get_all_remainders ~model:m1 ~examples:ex1 in
     print_in_order (List.sort custom_compare rems) ;
     ()
 
