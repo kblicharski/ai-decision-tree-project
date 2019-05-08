@@ -122,7 +122,9 @@ let () =
      print_in_order (List.sort custom_compare rems) ;
      let attr = Helpers.splitting_attr ~model:m1 ~examples:ex1 in
      print_attr attr ; *)
-  let _ = make_decision_tree ~examples:ex1 ~model:m1 in
+  let dt = make_decision_tree ~examples:ex1 ~model:m1 in
+  Helpers.print_source (sexp_of_dtree dt) ;
+  (* print_endline (Sexp.to_string (sexp_of_dtree dt)) ; *)
   ()
 
     (*
