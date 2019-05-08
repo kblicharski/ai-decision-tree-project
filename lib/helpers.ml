@@ -1,7 +1,6 @@
 open Model
 open Sexplib
 
-
 let find x l =
   let rec find_helper x l n =
     match l with
@@ -124,7 +123,7 @@ let split ~model ~examples used_attr =
   let helper =
     let custom_compare (v1, _) (v2, _) =
       if v1 = v2 then 0 else
-        if v1 > v2 then 1 else -1
+      if v1 > v2 then 1 else -1
     in
     let rems = get_all_remainders ~examples: examples ~model: model in
     let sorted = List.sort custom_compare rems in
@@ -139,7 +138,7 @@ let split ~model ~examples used_attr =
 let get_classification examples positive =
   let get_count_and_size =
     let classes = examples |>
-      List.map (fun e -> if ((List.nth e 0) = positive) then 1 else 0)
+                  List.map (fun e -> if ((List.nth e 0) = positive) then 1 else 0)
     in
     let size = float_of_int (List.length classes) in
     let count = float_of_int (List.fold_left (+) 0 classes) in
@@ -154,14 +153,15 @@ let get_classification examples positive =
   if majority then
     positive
   else
-    (* 
-      Hack to get around the fact that I only track the "positive" 
+    (*
+      Hack to get around the fact that I only track the "positive"
       class instead of both -- this should find the other class
       if there isn't a majority
     *)
     List.filter (fun e -> (List.nth e 0) <> positive) examples |>
-    List.map (fun e -> List.nth e 0) |> 
+    List.map (fun e -> List.nth e 0) |>
     List.hd
+
 
 let print_source ?(channel = stdout) sexp =
   let formatter = Format.formatter_of_out_channel channel in
