@@ -8,15 +8,6 @@ let find x l =
   in
   find_helper x l 0
 
-(*
-
-*)
-let uniform_partition ~partition =
-  let p =
-    partition |>
-    List.map (fun e -> List.length e) |>
-    List.filter (fun l -> l <> 0) in
-  if List.length p = 1 then Some p else None
 
 (*
   Returns all unique values in a list.
@@ -141,3 +132,31 @@ let split ~model ~examples used_attr =
   match helper with
   | None -> exit 0
   | Some x -> x
+
+
+let get_classification examples positive =
+  let get_count_and_size =
+    let classes = examples |>
+      List.map (fun e -> if ((List.nth e 0) = positive) then 1 else 0)
+    in
+    let size = float_of_int (List.length classes) in
+    let count = float_of_int (List.fold_left (+) 0 classes) in
+    (count, size)
+  in
+
+  let majority =
+    let (count, size) = get_count_and_size in
+    if (count >= size /. 2.) then true else false
+  in
+
+  if majority then
+    positive
+  else
+    (* 
+      Hack to get around the fact that I only track the "positive" 
+      class instead of both -- this should find the other class
+      if there isn't a majority
+    *)
+    List.filter (fun e -> (List.nth e 0) <> positive) examples |>
+    List.map (fun e -> List.nth e 0) |> 
+    List.hd

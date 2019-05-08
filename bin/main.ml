@@ -75,14 +75,16 @@ let make_decision_tree ~examples ~model =
     in
     let new_used_attrs = ch :: used_attrs in
     if (rem < 0.0001) || ((List.length new_used_attrs) > (List.length model.characteristics)) then
+      let classification = Helpers.get_classification examples model.positive in
       let (lnode: LNode.t) = {
         model = model;
-        depth = depth + 1;
-        classification = "Y";
+        depth = depth;
+        classification = classification;
         decision = decision;
         examples = examples;
       } in
-      let () = Printf.printf("Leaf node:\n") in
+      let () = Printf.printf("Leaf Node:\n") in
+      let () = Printf.printf("Classification: %s\n") classification in
       let () = print_partitions (List.map (fun (_, p) -> p) partitions) decisions1 in
       let () = List.iter (Printf.printf("%s ")) new_used_attrs in
       let () = Printf.printf "\nRemainder: %f\n" rem in
@@ -97,7 +99,7 @@ let make_decision_tree ~examples ~model =
         remainder = rem;
         examples = examples;
       } in
-      let () = Printf.printf("Split node:\n") in
+      let () = Printf.printf("Split Node:\n") in
       let () = print_partitions (List.map (fun (_, p) -> p) partitions) decisions1 in
       let () = List.iter (Printf.printf("%s ")) new_used_attrs in
       let () = Printf.printf "\nRemainder: %f\n" rem in
