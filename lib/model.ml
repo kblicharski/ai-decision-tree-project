@@ -5,29 +5,28 @@ type data_model = {
 }
 
 module SNode = struct
-  type t = 
+  type t =
     {
       model: data_model;
       depth: int;
       characteristic: string;
-      decision: string;
+      decision: string option;
       remainder: float;
       examples: string list list;
     }
 end
 
 module LNode = struct
-  type t = 
+  type t =
     {
       model: data_model;
       depth: int;
       classification: string;
-      decision: string;
+      decision: string option;
       examples: string list list;
     }
 end
 
-type dtree = 
+type dtree =
   | Leaf of LNode.t
   | Node of SNode.t * dtree list
-

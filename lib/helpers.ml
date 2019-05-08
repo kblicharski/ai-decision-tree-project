@@ -9,17 +9,17 @@ let find x l =
   find_helper x l 0
 
 (*
-  
+
 *)
 let uniform_partition ~partition =
-  let p = 
-    partition |> 
-    List.map (fun e -> List.length e) |> 
+  let p =
+    partition |>
+    List.map (fun e -> List.length e) |>
     List.filter (fun l -> l <> 0) in
   if List.length p = 1 then Some p else None
 
-(* 
-  Returns all unique values in a list. 
+(*
+  Returns all unique values in a list.
 
   Inputs:
     (l: string list)
@@ -79,7 +79,7 @@ let partition e u c =
     | [] -> o
     | h :: r ->
       let matched = List.filter (fun x -> (List.nth x c) = h) e in
-      partition_uniq r (matched :: o)
+      partition_uniq r ((h, matched) :: o)
   in
   List.rev (partition_uniq u [])
 
@@ -120,16 +120,24 @@ let get_all_remainders ~model ~examples =
     | [] -> o
     | h :: r ->
       let i = find h model.characteristics in
-      let p = partition examples model.decisions i in
+      let p_and_d = partition examples model.decisions i in
+      let p = List.map (fun (_, p) -> p) p_and_d in
       let rem = remainder examples p model.positive in
       r_helper r ((rem, List.nth model.characteristics i) :: o)
   in
   r_helper (List.tl model.characteristics) []
 
-let splitting_attr ~model ~examples =
-  let custom_compare (v1, _) (v2, _) =
-    if v1 = v2 then 0 else
-      if v1 > v2 then 1 else -1
+let split ~model ~examples used_attr =
+  let helper =
+    let custom_compare (v1, _) (v2, _) =
+      if v1 = v2 then 0 else
+        if v1 > v2 then 1 else -1
+    in
+    let rems = get_all_remainders ~examples: examples ~model: model in
+    let sorted = List.sort custom_compare rems in
+    try Some (List.find (fun (_, attr) -> not (List.mem attr used_attr)) sorted)
+    with Not_found -> None
   in
-  let rems = get_all_remainders ~examples: examples ~model: model in
-  List.hd (List.sort custom_compare rems)
+  match helper with
+  | None -> exit 0
+  | Some x -> x
