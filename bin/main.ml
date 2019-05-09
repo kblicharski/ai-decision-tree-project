@@ -12,7 +12,7 @@ let classify file =
   let dt = read_tree tree_src in
   let characteristics = characteristics_for file in
   let (incorrect, i_exs) = Classifier.classify_all ~examples:ex ~tree:dt ~characteristics:characteristics in
-  printf "Total Classifications: %d\n" (List.length ex) ;
+  printf "\nTotal Classifications: %d\n" (List.length ex) ;
   printf "Incorrect Classifications: %d\n" incorrect ;
   let error = ((float_of_int incorrect) /. float_of_int (List.length ex)) in
   printf "Error Rate: %.2f%%\n" (error *. 100.) ;

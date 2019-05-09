@@ -14,9 +14,11 @@ let classify_all ~examples ~tree ~characteristics =
   in
   let rec check ex = function
     | Leaf n      ->
+      let ex_str = List.fold_left (fun acc s -> acc ^ " " ^ s) "" ex in
+      Printf.printf "%s\t--->\t%s\n" n.classification ex_str ;
       if n.classification = List.nth ex 0 then true else false
     | Node (n, l) ->
-    let all_names = (List.map (fun (name, _) -> name) characteristics) in
+      let all_names = (List.map (fun (name, _) -> name) characteristics) in
       let index = Helpers.find n.characteristic all_names in
       let choice = List.nth ex index in
       let new_tree = find_correct_branch choice l in
