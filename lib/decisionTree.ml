@@ -5,7 +5,7 @@ let print_partitions partitions labels =
   let rec print_helper p n =
     match p with
     | [] -> ()
-    | h :: r ->
+    | (_, h) :: r ->
       Printf.printf "Partition '%s'\n" (List.nth labels n) ;
       Csv.print h ;
       print_helper r (n+1)
@@ -37,8 +37,11 @@ let make_decision_tree ~examples ~model =
       Helpers.partition examples model.decisions (Helpers.find ch model.characteristics) |>
       List.filter (fun (_, p) -> List.length p <> 0)
     in
+    print_partitions partitions model.decisions ;
+    Printf.printf "Rem: %.2f -- Attr: %s\n\n" rem ch ;
+    Printf.printf "Partition Length: %d\n\n" (List.length partitions) ;
     let new_used_attrs = ch :: used_attrs in
-    if (rem < 0.0001) || ((List.length new_used_attrs) > (List.length model.characteristics)) then
+    if ((List.length partitions = 1) && not (rem > 0.00)) || ((List.length new_used_attrs) > (List.length model.characteristics)) then
       let classification = Helpers.get_classification examples model.positive in
       Printf.printf "Creating leaf node...\n" ;
       Printf.printf "Remainder: %f\n" rem ;
