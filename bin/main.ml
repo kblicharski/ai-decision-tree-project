@@ -2,6 +2,7 @@ open Lib
 open Model
 open DataModels
 open DecisionTree
+open Sexplib
 
 let rec print_in_order rems =
   match rems with
@@ -34,7 +35,15 @@ let () =
      let attr = Helpers.splitting_attr ~model:m1 ~examples:ex1 in
      print_attr attr ; *)
   let dt = make_decision_tree ~examples:ex1 ~model:m1 in
-  Helpers.print_source (sexp_of_dtree dt) ;
+  let sexp = sexp_of_dtree dt in
+  Helpers.print_source sexp ;
+  (* Make sure that parsing a sexp back into a dtree works *)
+  Printf.printf "\n\n\nParsed Tree: \n\n";
+  let dt2 = dtree_of_sexp sexp in
+  let sexp2 = sexp_of_dtree dt2 in
+  Helpers.print_source sexp2 ;
+  Printf.printf "\n";
+  assert (Sexp.compare sexp sexp2 = 0) ;
   ()
 
     (*

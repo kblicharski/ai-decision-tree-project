@@ -160,6 +160,6 @@ let get_classification examples positive =
 
 let print_source ?(channel = stdout) sexp =
   let formatter = Format.formatter_of_out_channel channel in
-  (* List.iter (fun s -> Sexp.pp_hum formatter s) sexps; *)
   Sexp.pp_hum formatter sexp;
+  Printf.printf "\n\n";
   Format.pp_print_flush formatter ()
