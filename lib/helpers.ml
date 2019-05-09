@@ -75,33 +75,27 @@ let partition e u c =
   in
   List.rev (partition_uniq u [])
 
-(* Simple function to calculate log base 2 *)
-let log2 v = Pervasives.log10(v) /. Pervasives.log10(2.)
-
-let entropy p n =
-  let z = p +. n in
-  let a = if p > 0. then -.(p /. z) *. (log2 (p /. z)) else 0. in
-  let b = if n > 0. then -.(n /. z) *. (log2 (n /. z)) else 0. in
-  a +. b
 
 let remainder examples partitioned pos =
+  let entropy p n =
+    let log2 v = Pervasives.log10(v) /. Pervasives.log10(2.) in
+    let z = p +. n in
+    let a = if p > 0. then -.(p /. z) *. (log2 (p /. z)) else 0. in
+    let b = if n > 0. then -.(n /. z) *. (log2 (n /. z)) else 0. in
+    a +. b
+  in
   let find_p_n ex =
     let (p_, n_) = List.partition (fun e -> (List.nth e 0) = pos) ex in
     (float_of_int (List.length p_), float_of_int (List.length n_))
   in
   let (p, n) = find_p_n examples in
-  (* let () = Printf.printf "p:%f n:%f\n" p n in *)
   let pis_nis = List.map find_p_n partitioned in
   let calc_remainder (pi, ni) =
     let z = pi +. ni in
-    (* let () = Printf.printf "pi:%f ni:%f\n" pi ni in *)
     let rem = (z /. (p +. n)) *. (entropy (pi /. z) (ni /. z)) in
-    (* let () = Printf.printf "Entropy:%f\n" (entropy (pi /. z) (ni /. z)) in *)
-    (* let () = Printf.printf "Remainder:%f\n" rem in *)
     rem
   in
   let remainders = List.map calc_remainder pis_nis in
-  (* let () = List.iter (Printf.printf "%f ") remainders in *)
   let sum l = List.fold_right (+.) l 0. in
   sum remainders
 
@@ -119,12 +113,13 @@ let get_all_remainders ~model ~examples =
   in
   r_helper (List.tl model.characteristics) []
 
+
 let split ~model ~examples used_attr =
+  let custom_compare (v1, _) (v2, _) =
+    if v1 = v2 then 0 else
+    if v1 > v2 then 1 else -1
+  in
   let helper =
-    let custom_compare (v1, _) (v2, _) =
-      if v1 = v2 then 0 else
-      if v1 > v2 then 1 else -1
-    in
     let rems = get_all_remainders ~examples: examples ~model: model in
     let sorted = List.sort custom_compare rems in
     try Some (List.find (fun (_, attr) -> not (List.mem attr used_attr)) sorted)
