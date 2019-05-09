@@ -23,15 +23,15 @@ let positive1 = "democrat"
 
 let characteristics_for file =
   match file with
-  | "data/house-votes-84.data" -> characteristics1
+  | "house-votes-84" | "votes-small" -> characteristics1
   | _ -> failwith "data model not found"
 
 let decisions_for file =
   match file with
-  | "data/house-votes-84.data" -> decisions1
+  | "house-votes-84" | "votes-small" -> decisions1
   | _ -> failwith "data model not found"
 
 let positive_for file =
   match file with
-  | "data/house-votes-84.data" -> positive1
+  | "house-votes-84" | "votes-small" -> positive1
   | _ -> failwith "data model not found"

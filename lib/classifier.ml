@@ -21,9 +21,9 @@ let classify_all ~model ~examples ~tree =
       let new_tree = find_correct_branch choice l in
       check ex new_tree
   in
-  let rec classify ic = function
+  let rec classify ic i = function
     | h :: r -> 
-      if check h tree then classify ic r else classify (ic + 1) r
-    | [] -> ic
+      if check h tree then classify ic i r else classify (ic + 1) (h :: i) r
+    | [] -> (ic, i)
   in
-  classify 0 examples
+  classify 0 [] examples

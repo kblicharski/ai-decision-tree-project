@@ -3,26 +3,45 @@ open Fileio
 open Model
 open DataModels
 open DecisionTree
+open Printf
 
-let () =
-  let data_file = "data/house-votes-84.data" in
+
+let createClassifier file =
+  let data_file =  (String.concat "" ["data/"; file; ".data"]) in
   let ex = load_data data_file in
   let m = {
-    positive = positive_for data_file;
-    characteristics = characteristics_for data_file;
-    decisions = decisions_for data_file;
+    positive = positive_for file;
+    characteristics = characteristics_for file;
+    decisions = decisions_for file;
   } in
   let dt = make_decision_tree ~examples:ex ~model:m in
   print_tree dt ;
-  write_tree "trees/house-votes-84.tree" dt ;
-  let dt2 = read_tree "trees/house-votes-84.tree" in
+  let model_file = String.concat "" ["trees/"; file; ".tree"] in
+  write_tree model_file dt ;
+  let dt2 = read_tree model_file in
   let sexp = Serializers.sexp_of_dtree dt in
   let sexp2 = Serializers.sexp_of_dtree dt2 in
   (* Verify that the sexp we wrote to a file is the same as the original *)
   assert (Sexplib.Sexp.compare sexp sexp2 = 0) ;
-  let incorrect = Classifier.classify_all ~model:m ~examples:ex ~tree:dt in
-  Printf.printf "Total Classifications: %d\n" (List.length ex) ;
-  Printf.printf "Incorrect Classifications: %d\n" incorrect ;
+
+  let (incorrect, i_exs) = Classifier.classify_all ~model:m ~examples:ex ~tree:dt in
+  printf "Total Classifications: %d\n" (List.length ex) ;
+  printf "Incorrect Classifications: %d\n" incorrect ;
   let error = ((float_of_int incorrect) /. float_of_int (List.length ex)) in
-  Printf.printf "Error Rate: %.2f%%\n" (error *. 100.) ;
+  printf "Error Rate: %.2f%%\n" (error *. 100.) ;
+  printf "\nIncorrectly Classified:\n" ;
+  List.iter (fun e -> List.iter (printf "%s ") e; printf "\n") i_exs ;
+  printf "\n\n" ;
   ()
+
+
+let () =
+  match ((Array.length Sys.argv) - 1) with
+  | 0 -> 
+    printf "This program can be used with the following arguments: 
+    tree [dataFile]\n" (* add more usages later *)
+  | 2 ->
+    if (Array.get Sys.argv 1) = "tree" then
+      createClassifier (Array.get Sys.argv 2)
+      else failwith "not yet implemented"
+  | _ -> failwith "The given args do not fit any possible usages. To see program usages, execute without any arguments."
