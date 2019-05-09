@@ -12,3 +12,19 @@ let read_file (file_name: string) =
 
 let load_data (file_name: string): Csv.t =
   Csv.load file_name
+
+
+let write_tree (dest: string) (sexp: Sexplib.Sexp.t) = 
+  let oc = open_out dest in
+  let str = Sexplib.Sexp.to_string sexp in
+  Printf.fprintf oc "%s" str ;
+  close_out oc
+
+let read_tree (src: string) =
+  let ic = open_in src in
+  let s = input_line ic in
+  let sexp = Sexplib.Sexp.of_string s in
+  let dt = Model.dtree_of_sexp sexp in
+  flush stdout ;
+  close_in ic ;
+  dt

@@ -44,6 +44,14 @@ let () =
   Helpers.print_source sexp2 ;
   Printf.printf "\n";
   assert (Sexp.compare sexp sexp2 = 0) ;
+  (* Write resulting tree into a file *)
+  Fileio.write_tree "trees/house-votes-84.tree" sexp ;
+  let dt3 = Fileio.read_tree "trees/house-votes-84.tree" in
+  (* Verify that the sexp we just wrote to a file is the same as the original *)
+  let sexp3 = sexp_of_dtree dt3 in
+  Helpers.print_source sexp3 ;
+  Printf.printf "\n";
+  assert (Sexp.compare sexp sexp3 = 0) ;
   ()
 
     (*
