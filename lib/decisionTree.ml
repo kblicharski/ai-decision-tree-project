@@ -40,6 +40,9 @@ let make_decision_tree ~examples ~model =
     let new_used_attrs = ch :: used_attrs in
     if (rem < 0.0001) || ((List.length new_used_attrs) > (List.length model.characteristics)) then
       let classification = Helpers.get_classification examples model.positive in
+      Printf.printf "Creating leaf node...\n" ;
+      Printf.printf "Remainder: %f\n" rem ;
+      Printf.printf "Available Attributes: %d\n" ((List.length model.characteristics) - (List.length used_attrs)) ;
       Leaf (make_leaf_node depth classification decision examples)
     else
       Node (make_split_node depth ch decision rem examples, List.map (fun (d, p) -> (helper new_used_attrs p (depth+1) (Some d))) partitions)

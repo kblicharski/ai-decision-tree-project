@@ -85,8 +85,8 @@ let remainder examples partitioned pos =
   let entropy p n =
     let log2 v = Pervasives.log10(v) /. Pervasives.log10(2.) in
     let z = p +. n in
-    let a = if p > 0. then -.(p /. z) *. (log2 (p /. z)) else 0. in
-    let b = if n > 0. then -.(n /. z) *. (log2 (n /. z)) else 0. in
+    let a = if p > 0.00 then -.(p /. z) *. (log2 (p /. z)) else 0. in
+    let b = if n > 0.00 then -.(n /. z) *. (log2 (n /. z)) else 0. in
     a +. b
   in
   let find_p_n ex =
