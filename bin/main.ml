@@ -24,7 +24,7 @@ let createClassifier file =
   (* Verify that the sexp we wrote to a file is the same as the original *)
   assert (Sexplib.Sexp.compare sexp sexp2 = 0) ;
 
-  let (incorrect, i_exs) = Classifier.classify_all ~model:m ~examples:ex ~tree:dt in
+  let (incorrect, i_exs) = Classifier.classify_all ~model:m ~examples:ex ~tree:dt2 in
   printf "Total Classifications: %d\n" (List.length ex) ;
   printf "Incorrect Classifications: %d\n" incorrect ;
   let error = ((float_of_int incorrect) /. float_of_int (List.length ex)) in

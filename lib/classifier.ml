@@ -10,7 +10,7 @@ let classify_all ~model ~examples ~tree =
     | h :: r -> 
       let valid = check_branch choice h in
       if valid then h else find_correct_branch choice r
-    | [] -> failwith "Error: No valid branch found"
+    | [] -> failwith "No valid branch found"
   in
   let rec check ex = function
     | Leaf n      ->
