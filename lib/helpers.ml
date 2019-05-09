@@ -1,5 +1,3 @@
-open Model
-
 let find x l =
   let rec find_helper x l n =
     match l with
@@ -105,27 +103,60 @@ let remainder examples partitioned pos =
   sum remainders
 
 
-let get_all_remainders ~model ~examples =
+let get_classification examples  =
+  let group_by_class lst =
+    let cmp_class e1 e2 = List.hd e1 = List.hd e2 in
+    let rec group_helper acc = function
+      | [] -> acc
+      | h::t -> let _, l2 =
+                  List.partition (cmp_class h) t in
+        group_helper ((h::t)::acc) l2
+    in
+    group_helper [] lst
+  in
+  let groups = group_by_class examples in
+  let plurality = List.sort (fun a b -> List.length b - List.length a) groups in
+  List.hd (List.hd (List.hd plurality))
+
+let print_partitions partitions labels =
+  let rec print_helper p n =
+    match p with
+    | [] -> ()
+    | (_, h) :: r ->
+      Printf.printf "Partition '%s'\n" (List.nth labels n) ;
+      Csv.print h ;
+      print_helper r (n+1)
+  in
+  print_helper partitions 0
+
+let get_all_remainders ~characteristics ~examples =
+  let all_names = (List.map (fun (name, _) -> name) characteristics) in
+  let positive = (get_classification examples) in
+  let () = Printf.printf "positive: %s \n" positive in
   let rec r_helper chars o =
     match chars with
     | [] -> o
-    | h :: r ->
-      let i = find h model.characteristics in
-      let p_and_d = partition examples model.decisions i in
+    | (char_name, decisions) :: r ->
+      let i = find char_name all_names in
+      (* let () = Printf.printf "%s -- %d\n" char_name i in
+      let () = List.iter (fun e -> List.iter (Printf.printf "%s ") e; Printf.printf "\n") examples in
+      let () = Printf.printf "\n" in *)
+      let p_and_d = partition examples decisions i in
       let p = List.map (fun (_, p) -> p) p_and_d in
-      let rem = remainder examples p model.positive in
-      r_helper r ((rem, List.nth model.characteristics i) :: o)
+      (* let () = print_partitions p_and_d decisions in *)
+      let rem = remainder examples p positive in
+      r_helper r ((rem, List.nth all_names i) :: o)
   in
-  r_helper (List.tl model.characteristics) []
+  r_helper (List.tl characteristics) []
 
 
-let split ~model ~examples used_attr =
+let split ~characteristics ~examples used_attr =
   let custom_compare (v1, _) (v2, _) =
     if v1 = v2 then 0 else
     if v1 > v2 then 1 else -1
   in
   let helper =
-    let rems = get_all_remainders ~examples: examples ~model: model in
+    let rems = get_all_remainders ~examples:examples ~characteristics:characteristics in
     let sorted = List.sort custom_compare rems in
     try Some (List.find (fun (_, attr) -> not (List.mem attr used_attr)) sorted)
     with Not_found -> None
@@ -133,32 +164,3 @@ let split ~model ~examples used_attr =
   match helper with
   | None -> exit 0
   | Some x -> x
-
-
-let get_classification examples positive =
-  let get_count_and_size =
-    let classes = examples |>
-                  List.map (fun e -> if ((List.nth e 0) = positive) then 1 else 0)
-    in
-    let size = float_of_int (List.length classes) in
-    let count = float_of_int (List.fold_left (+) 0 classes) in
-    (count, size)
-  in
-
-  let majority =
-    let (count, size) = get_count_and_size in
-    if (count >= size /. 2.) then true else false
-  in
-
-  if majority then
-    positive
-  else
-    (*
-      Hack to get around the fact that I only track the "positive"
-      class instead of both -- this should find the other class
-      if there isn't a majority
-    *)
-    List.filter (fun e -> (List.nth e 0) <> positive) examples |>
-    List.map (fun e -> List.nth e 0) |>
-    List.hd
-

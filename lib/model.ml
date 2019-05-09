@@ -1,9 +1,3 @@
-type data_model = {
-  positive: string;
-  characteristics: string list;
-  decisions: string list;
-}
-
 module SNode = struct
   type t =
     {
