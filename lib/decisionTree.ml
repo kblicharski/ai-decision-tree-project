@@ -13,7 +13,8 @@ let print_partitions partitions labels =
   print_helper partitions 0
 
 
-let make_decision_tree ~examples (characteristics: (string * string list) list) =
+(* let make_decision_tree ~examples ~(characteristics: (string * string list) list) ~max_depth = *)
+let make_decision_tree ~examples ~characteristics ~max_depth =
   let make_leaf_node depth classification decision examples : LNode.t =
     {
       depth = depth;
@@ -40,17 +41,20 @@ let make_decision_tree ~examples (characteristics: (string * string list) list) 
       Helpers.partition examples decisions index |>
       List.filter (fun (_, p) -> List.length p <> 0)
     in
-    let out_of_attrs attrs = ((List.length attrs) >= (List.length characteristics) - 1) in
     let new_used_attrs = ch :: used_attrs in
-    let out = out_of_attrs new_used_attrs in
-    let () = if out then Printf.printf "out of attrs -- rem:%.2f\n" rem else () in
-    if not (rem > 0.00) || (out_of_attrs new_used_attrs) then
+    let should_generate_leaves =
+      let out_of_attrs attrs = ((List.length attrs) >= (List.length characteristics) - 1) in
+      match max_depth with
+      | Some d -> ((depth+1) = d) || not (rem > 0.00) || (out_of_attrs new_used_attrs)
+      | None -> not (rem > 0.00) || (out_of_attrs new_used_attrs)
+    in
+    if should_generate_leaves then
       Node (make_split_node depth ch decision rem examples, List.map (
-          fun (d, e) ->
-            let classification = Helpers.get_classification e in
-            Leaf (make_leaf_node depth classification (Some d) e)
-        ) partitions
-        )
+        fun (d, e) ->
+          let classification = Helpers.get_classification e in
+          Leaf (make_leaf_node (depth+1) classification (Some d) e)
+      ) partitions
+      )
     else
       Node (make_split_node depth ch decision rem examples, List.map (fun (d, p) -> (helper new_used_attrs p (depth+1) (Some d))) partitions)
   in
