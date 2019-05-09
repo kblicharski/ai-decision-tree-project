@@ -163,3 +163,8 @@ let print_source ?(channel = stdout) sexp =
   Sexp.pp_hum formatter sexp;
   Printf.printf "\n\n";
   Format.pp_print_flush formatter ()
+
+
+let print_tree dt =
+  let sexp = sexp_of_dtree dt in
+  print_source sexp ;
