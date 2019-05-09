@@ -1,6 +1,5 @@
 open Lib
 open Fileio
-open Helpers
 open Model
 open DataModels
 open DecisionTree
@@ -17,8 +16,13 @@ let () =
   print_tree dt ;
   write_tree "trees/house-votes-84.tree" dt ;
   let dt2 = read_tree "trees/house-votes-84.tree" in
-  let sexp = sexp_of_dtree dt in
-  let sexp2 = sexp_of_dtree dt2 in
+  let sexp = Serializers.sexp_of_dtree dt in
+  let sexp2 = Serializers.sexp_of_dtree dt2 in
   (* Verify that the sexp we wrote to a file is the same as the original *)
   assert (Sexplib.Sexp.compare sexp sexp2 = 0) ;
+  let incorrect = Classifier.classify_all ~model:m ~examples:ex ~tree:dt in
+  Printf.printf "Total Classifications: %d\n" (List.length ex) ;
+  Printf.printf "Incorrect Classifications: %d\n" incorrect ;
+  let error = ((float_of_int incorrect) /. float_of_int (List.length ex)) in
+  Printf.printf "Error Rate: %.2f%%\n" (error *. 100.) ;
   ()

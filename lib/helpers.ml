@@ -1,5 +1,4 @@
 open Model
-open Sexplib
 
 let find x l =
   let rec find_helper x l n =
@@ -8,6 +7,12 @@ let find x l =
     | h :: r -> if h = x then n else find_helper x r (n+1)
   in
   find_helper x l 0
+
+
+
+let get_option = function
+  | Some x -> x
+  | None -> ""
 
 
 (*
@@ -157,14 +162,3 @@ let get_classification examples positive =
     List.map (fun e -> List.nth e 0) |>
     List.hd
 
-
-let print_source ?(channel = stdout) sexp =
-  let formatter = Format.formatter_of_out_channel channel in
-  Sexp.pp_hum formatter sexp;
-  Printf.printf "\n\n";
-  Format.pp_print_flush formatter ()
-
-
-let print_tree dt =
-  let sexp = sexp_of_dtree dt in
-  print_source sexp ;
