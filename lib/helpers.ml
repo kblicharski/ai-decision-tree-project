@@ -1,3 +1,14 @@
+let generate_range d =
+  let rec helper i o =
+    match i with
+    | 0 -> o
+    | _ -> helper (i-1) (i :: o)
+  in
+  helper d []
+
+(* let dts = List.map (fun i -> make_decision_tree ~examples:ex ~characteristics:characteristics ~max_depth:i) range *)
+
+
 let find x l =
   let rec find_helper x l n =
     match l with
