@@ -39,18 +39,13 @@ let get_kfold_err exs characteristics depth =
     let _ = printf "depth: %d and count: %d\n" depth count in
     match exs' with
     | valset :: rest ->  if count < 4 then
-        let _ = printf "valLength: %d and restLength: %d\n" (List.length valset) (List.length rest) in
         let trainset = List.concat rest in
         let dt = make_decision_tree ~examples:trainset ~characteristics:characteristics ~max_depth:(Some depth) in
-        let _ = print_tree dt in
-        let printlist l = List.iter (fun x -> printf "%s " x) l in
-        let _ = List.iter (fun ll -> printlist ll; printf "\n") valset in
         let (t_err, _) = Classifier.classify_all ~examples:trainset ~tree:dt ~characteristics:characteristics in 
-        let _ = printf "classified training set" in
         let (v_err, _) = Classifier.classify_all ~examples:valset ~tree:dt ~characteristics:characteristics in 
-        let _ = printf "Classifier done\n" in
+        let _ = printf "For depth = %d, training error was %d and validation error was %d" depth (trainerr + t_err) (valerr + v_err) in
         inner (rest @ [valset]) (count + 1) (trainerr + t_err) (valerr + v_err)
-        else let _ = printf "For depth = %d, training error was %d and validation error was %d" trainerr valerr in 
+        else 
         valerr (*(trainerr, valerr)*)
     | _ -> failwith "Error in get_kfold_err"
   in inner exs 0 0 0
@@ -72,7 +67,7 @@ let kFold file max_d =
   let bestdepth = ref 1 in
   for curr_d = 2 to max_d do
     let curr_error = get_kfold_err exs characteristics curr_d in
-    if (!minerror) > curr_error then minerror := curr_error; bestdepth := curr_d 
+    if (!minerror) > curr_error then (minerror := curr_error; bestdepth := curr_d)
   done;
   printf "%d " !minerror; printf "%d " !bestdepth
   (*let besttree = make_decision_tree ~examples:ex ~model:m ~max_depth:(Some !bestdepth) in*)

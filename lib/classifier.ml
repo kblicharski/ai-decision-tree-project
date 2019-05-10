@@ -9,20 +9,22 @@ let classify_all ~examples ~tree ~characteristics =
     match branches with
     | h :: r ->
       let valid = check_branch choice h in
-      if valid then h else find_correct_branch choice r
-    | [] -> failwith "No valid branch found"
+      if valid then (Some h) else find_correct_branch choice r
+    | [] -> None (*failwith "No valid branch found"*)
   in
   let rec check ex = function
     | Leaf n      ->
-      let ex_str = List.fold_left (fun acc s -> acc ^ " " ^ s) "" ex in
-      Printf.printf "%s\t--->\t%s\n" n.classification ex_str ;
+      (*let ex_str = List.fold_left (fun acc s -> acc ^ " " ^ s) "" ex in
+      Printf.printf "%s\t--->\t%s\n" n.classification ex_str ;*)
       if n.classification = List.nth ex 0 then true else false
     | Node (n, l) ->
       let all_names = (List.map (fun (name, _) -> name) characteristics) in
       let index = Helpers.find n.characteristic all_names in
       let choice = List.nth ex index in
       let new_tree = find_correct_branch choice l in
-      check ex new_tree
+      match new_tree with
+      | Some dtree -> check ex dtree
+      | None -> false 
   in
   let rec classify ic i = function
     | h :: r ->
