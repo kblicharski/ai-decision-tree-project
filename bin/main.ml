@@ -42,15 +42,17 @@ let get_kfold_err exs characteristics depth =
         let dt = make_decision_tree ~examples:trainset ~characteristics:characteristics ~max_depth:(Some depth) in
         let (t_err, _) = Classifier.classify_all ~examples:trainset ~tree:dt ~characteristics:characteristics in 
         let (v_err, _) = Classifier.classify_all ~examples:valset ~tree:dt ~characteristics:characteristics in 
-        let t_percent = (float_of_int (trainerr + t_err)) /. float_of_int((count + 1) * (List.length trainset)) in
-        let v_percent = (float_of_int (valerr + v_err)) /. float_of_int((count + 1) * (List.length valset)) in
-        let _ = printf "For depth = %d and count = %d, average training error was %.4f and validation error was %.4f\n" depth count (t_percent) (v_percent) in
         inner (rest @ [valset]) (count + 1) (trainerr + t_err) (valerr + v_err)
         else 
-        valerr (*(trainerr, valerr)*)
+        (trainerr, valerr)
     | _ -> failwith "Error in get_kfold_err"
-  in let _ = printf "\nCurrent depth of tree is %d\n" depth in
-  inner exs 0 0 0
+  in 
+  let terr, verr = inner exs 0 0 0 in
+  let total = List.length (List.concat exs) in
+  let t_percent = (float_of_int (terr)) /. float_of_int(total * 3) in
+  let v_percent = (float_of_int (verr)) /. float_of_int(total) in
+  let _ = printf "For depth = %d, average training error was %.4f and validation error was %.4f\n" depth (t_percent) (v_percent) in
+  verr
   
 
 let kFold file max_d = 
