@@ -132,7 +132,6 @@ let print_partitions partitions labels =
 let get_all_remainders ~characteristics ~examples =
   let all_names = (List.map (fun (name, _) -> name) characteristics) in
   let positive = (get_classification examples) in
-  let () = Printf.printf "positive: %s \n" positive in
   let rec r_helper chars o =
     match chars with
     | [] -> o
