@@ -42,8 +42,8 @@ let get_kfold_err exs characteristics depth =
         let dt = make_decision_tree ~examples:trainset ~characteristics:characteristics ~max_depth:(Some depth) in
         let (t_err, _) = Classifier.classify_all ~examples:trainset ~tree:dt ~characteristics:characteristics in 
         let (v_err, _) = Classifier.classify_all ~examples:valset ~tree:dt ~characteristics:characteristics in 
-        let t_percent = (float_of_int (trainerr + t_err)) /. float_of_int((count + 1) * ((List.length valset) + (List.length trainset))) in
-        let v_percent = (float_of_int (valerr + v_err)) /. float_of_int((count + 1) * ((List.length valset) + (List.length trainset))) in
+        let t_percent = (float_of_int (trainerr + t_err)) /. float_of_int((count + 1) * (List.length trainset)) in
+        let v_percent = (float_of_int (valerr + v_err)) /. float_of_int((count + 1) * (List.length valset)) in
         let _ = printf "For depth = %d and count = %d, average training error was %.4f and validation error was %.4f\n" depth count (t_percent) (v_percent) in
         inner (rest @ [valset]) (count + 1) (trainerr + t_err) (valerr + v_err)
         else 
@@ -71,10 +71,10 @@ let kFold file max_d =
     let curr_error = get_kfold_err exs characteristics curr_d in
     if (!minerror) > curr_error then (minerror := curr_error; bestdepth := curr_d)
   done;
-  printf "The minimum average validation error was %.4f at a depth of %d\n" ((float_of_int !minerror)/.(float_of_int (4 * List.length ex))) !bestdepth;
+  printf "The minimum average validation error was %.4f at a depth of %d\n" ((float_of_int !minerror)/.(float_of_int (List.length ex))) !bestdepth;
   let besttree = make_decision_tree ~examples:ex ~characteristics:characteristics ~max_depth:(Some !bestdepth) in
   let (error, _) = Classifier.classify_all ~examples:ex ~tree:besttree ~characteristics in
-  printf "Training error for final tree of depth %d is %.4f\n" !bestdepth ((float_of_int error)/.(float_of_int (4 * List.length ex))); 
+  printf "Training error for final tree of depth %d is %.4f\n" !bestdepth ((float_of_int error)/.(float_of_int (List.length ex))); 
   ()
   
 
@@ -87,6 +87,7 @@ let () =
     dtl [dataFile]\n
     dtl [dataFile] [maxDepth]\n
     classify [dataFile]\n
+    kfold [dataFile] [maxDepth]
     " (* add more usages later *)
   | 2 ->
       let a1 = (Array.get Sys.argv 1) in
