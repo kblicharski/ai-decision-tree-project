@@ -57,15 +57,9 @@ let get_kfold_err exs characteristics depth =
 
 let kFold file max_d = 
   let data_file =  (String.concat "" ["data/"; file; ".data"]) in
-  (*let tree_file = String.concat "" ["trees/"; file; ".tree"] in*)
   let ex = load_data data_file in
   let characteristics = characteristics_for file in
   let e1, e2, e3, e4 = Helpers.split_in4 ex in
-  (*let printlist l = List.iter (fun x -> printf "%s " x) l in
-  List.iter (fun ll -> printlist ll) e1; printf "\ne2 = "; 
-  List.iter (fun ll -> printlist ll) e2; printf "\ne3 = ";
-  List.iter (fun ll -> printlist ll) e3; printf "\ne4 = ";
-  List.iter (fun ll -> printlist ll) e4; printf "\ntotal = %d" (List.length ex)*)
   let exs = [e1; e2; e3; e4] in 
   let minerror = ref (get_kfold_err exs characteristics 1) in
   let bestdepth = ref 1 in
