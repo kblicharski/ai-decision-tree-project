@@ -36,19 +36,21 @@ let createClassifier file max_d =
 
 let get_kfold_err exs characteristics depth =
   let rec inner exs' count trainerr valerr = 
-    let _ = printf "depth: %d and count: %d\n" depth count in
     match exs' with
     | valset :: rest ->  if count < 4 then
         let trainset = List.concat rest in
         let dt = make_decision_tree ~examples:trainset ~characteristics:characteristics ~max_depth:(Some depth) in
         let (t_err, _) = Classifier.classify_all ~examples:trainset ~tree:dt ~characteristics:characteristics in 
         let (v_err, _) = Classifier.classify_all ~examples:valset ~tree:dt ~characteristics:characteristics in 
-        let _ = printf "For depth = %d, training error was %d and validation error was %d" depth (trainerr + t_err) (valerr + v_err) in
+        let t_percent = (float_of_int (trainerr + t_err)) /. float_of_int((count + 1) * ((List.length valset) + (List.length trainset))) in
+        let v_percent = (float_of_int (valerr + v_err)) /. float_of_int((count + 1) * ((List.length valset) + (List.length trainset))) in
+        let _ = printf "For depth = %d and count = %d, average training error was %.4f and validation error was %.4f\n" depth count (t_percent) (v_percent) in
         inner (rest @ [valset]) (count + 1) (trainerr + t_err) (valerr + v_err)
         else 
         valerr (*(trainerr, valerr)*)
     | _ -> failwith "Error in get_kfold_err"
-  in inner exs 0 0 0
+  in let _ = printf "\nCurrent depth of tree is %d\n" depth in
+  inner exs 0 0 0
   
 
 let kFold file max_d = 
@@ -69,8 +71,11 @@ let kFold file max_d =
     let curr_error = get_kfold_err exs characteristics curr_d in
     if (!minerror) > curr_error then (minerror := curr_error; bestdepth := curr_d)
   done;
-  printf "%d " !minerror; printf "%d " !bestdepth
-  (*let besttree = make_decision_tree ~examples:ex ~model:m ~max_depth:(Some !bestdepth) in*)
+  printf "The minimum average validation error was %.4f at a depth of %d\n" ((float_of_int !minerror)/.(float_of_int (4 * List.length ex))) !bestdepth;
+  let besttree = make_decision_tree ~examples:ex ~characteristics:characteristics ~max_depth:(Some !bestdepth) in
+  let (error, _) = Classifier.classify_all ~examples:ex ~tree:besttree ~characteristics in
+  printf "Training error for final tree of depth %d is %.4f\n" !bestdepth ((float_of_int error)/.(float_of_int (4 * List.length ex))); 
+  ()
   
 
 
