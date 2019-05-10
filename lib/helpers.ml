@@ -174,3 +174,45 @@ let split ~characteristics ~examples used_attr =
   match helper with
   | None -> exit 0
   | Some x -> x
+
+
+let get_classification examples positive =
+  let get_count_and_size =
+    let classes = examples |>
+                  List.map (fun e -> if ((List.nth e 0) = positive) then 1 else 0)
+    in
+    let size = float_of_int (List.length classes) in
+    let count = float_of_int (List.fold_left (+) 0 classes) in
+    (count, size)
+  in
+
+  let majority =
+    let (count, size) = get_count_and_size in
+    if (count >= size /. 2.) then true else false
+  in
+
+  if majority then
+    positive
+  else
+    (*
+      Hack to get around the fact that I only track the "positive"
+      class instead of both -- this should find the other class
+      if there isn't a majority
+    *)
+    List.filter (fun e -> (List.nth e 0) <> positive) examples |>
+    List.map (fun e -> List.nth e 0) |>
+    List.hd
+
+let rec split_in_half l1 l2 =
+  if (List.compare_lengths l1 l2) > 0 then
+  match l1 with 
+  | a :: rest -> split_in_half rest (a :: l2)
+  | [] -> failwith "Empty list in split_in_half"
+  else l1, l2
+
+
+let split_in4 ex = 
+  let e1, e2 = split_in_half ex [] in
+  let g1, g2 = split_in_half e1 [] in 
+  let g3, g4 = split_in_half e2 [] in
+  g1, g2, g3, g4
