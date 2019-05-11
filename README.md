@@ -22,6 +22,11 @@ dune clean && dune exec ./bin/main.exe dtl [data] [maxDepth]
 dune clean && dune exec ./bin/main.exe classify [data]
 ```
 
+4. Running K-fold cross validation to determine the best depth up to a specified maximum depth.
+```
+dune clean && dune exec ./bin/main.exe kfold [data] [maxDepth]
+```
+
 Where `data` can be one of the following:
 ```
 house-votes-84
