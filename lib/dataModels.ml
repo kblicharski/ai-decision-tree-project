@@ -100,6 +100,14 @@ let characteristics5 = [
   ("g6", decisions5);
 ]
 
+let characteristics6 = [
+  ("play?", ["no"; "yes"]);
+  ("outlook", ["sunny"; "overcast"; "rain"]);
+  ("temperature", ["hot"; "mild"; "cool"]);
+  ("humidity", ["high"; "normal"]);
+  ("wind", ["weak"; "strong"]);
+]
+
 let characteristics_for file =
   match file with
   | "house-votes-84" | "votes-small" -> characteristics1
@@ -107,4 +115,5 @@ let characteristics_for file =
   | "tic-tac-toe" -> characteristics3
   | "balance-scale" -> characteristics4
   | "connect-4" -> characteristics5
+  | "tennis" -> characteristics6
   | _ -> failwith "data model not found"

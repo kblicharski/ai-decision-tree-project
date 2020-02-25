@@ -1,0 +1,1 @@
+(NODE(0 outlook""0.6231((NODE(1 humidity sunny 0.0000((LEAF(2 no high))(LEAF(2 yes normal)))))(NODE(1 wind overcast 0.0000((LEAF(2 yes weak))(LEAF(2 yes strong)))))(NODE(1 wind rain 0.0000((LEAF(2 yes weak))(LEAF(2 no strong))))))))
